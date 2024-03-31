@@ -10,7 +10,6 @@ from .resources import *
 __all__ = ["DE10NanoPlatform"]
 
 
-# The MiSTer platform is built around the DE10-Nano; if you update one you should update the other.
 class DE10NanoPlatform(IntelPlatform):
     device      = "5CSEBA6" # Cyclone V 110K LEs
     package     = "U23"     # UBGA-484
