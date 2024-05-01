@@ -41,6 +41,9 @@ toolchain = [
   "yowasp-nextpnr-ice40",
   "yowasp-nextpnr-ecp5",
 ]
+dev = [
+    "amaranth @ git+https://github.com/amaranth-lang/amaranth",
+]
 
 [tool.pdm.scripts]
 _.env_file = ".env.toolchain"
