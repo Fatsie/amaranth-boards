@@ -74,7 +74,18 @@ class MiSTPlatform(IntelPlatform):
 
 if __name__ == "__main__":
     from .test.blinky import Blinky
-    MiSTPlatform().build(Blinky(), do_program=False)
+    from .test.vga import VGA
+
+    class Top(Elaboratable):
+        def elaborate(self, platform: Platform):
+            m = Module()
+
+            m.submodules += Blinky()
+            m.submodules += VGA(clk_freq=27e6)
+
+            return m
+
+    MiSTPlatform().build(Top(), do_program=False)
     print((
         "To use test bitstream on MiST; copy 'build/top.rbf' to file\n"
         "named 'core.rbf' on SD card so it will be loaded by MiST firmware"
