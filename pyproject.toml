@@ -37,7 +37,7 @@ toolchain = [
   "yowasp-nextpnr-ecp5",
 ]
 dev = [
-    "amaranth @ git+https://github.com/amaranth-lang/amaranth",
+    "-e file:///home/verhaegs/eda/Chips4Makers/code/amaranth#egg=amaranth",
 ]
 
 [tool.pdm.scripts]
