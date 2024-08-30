@@ -168,6 +168,8 @@ def NORFlashResources(*args, rst=None, byte_n=None, cs_n, oe_n, we_n, wp_n, by, 
 
 def DDR3Resource(*args, rst_n, clk_p, clk_n, clk_en, cs_n, we_n, ras_n, cas_n, a, ba, dqs_p, dqs_n, dq, dm, odt,
                  conn=None, diff_attrs=None, attrs=None):
+    diff_args = () if diff_attrs is None else (diff_attrs,)
+
     ios = []
 
     clk = DiffPairs(clk_p, clk_n, dir="o", conn=conn)
@@ -176,8 +178,9 @@ def DDR3Resource(*args, rst_n, clk_p, clk_n, clk_en, cs_n, we_n, ras_n, cas_n, a
     ranks = len(cs)
     assert (len(clk) == 1) or (len(clk) == ranks), "Must have one clock pair or as many pairs as there are ranks"
 
-    ios.append(Subsignal("rst", PinsN(rst_n, dir="o", conn=conn, assert_width=1)))
-    ios.append(Subsignal("clk", clk, diff_attrs))
+    if rst_n is not None:
+        ios.append(Subsignal("rst", PinsN(rst_n, dir="o", conn=conn, assert_width=1)))
+    ios.append(Subsignal("clk", clk, *diff_args))
     ios.append(Subsignal("clk_en", Pins(clk_en, dir="o", conn=conn, assert_width=ranks)))
     ios.append(Subsignal("cs", cs))
     ios.append(Subsignal("we", PinsN(we_n, dir="o", conn=conn, assert_width=1)))
@@ -185,7 +188,7 @@ def DDR3Resource(*args, rst_n, clk_p, clk_n, clk_en, cs_n, we_n, ras_n, cas_n, a
     ios.append(Subsignal("cas", PinsN(cas_n, dir="o", conn=conn, assert_width=1)))
     ios.append(Subsignal("a", Pins(a, dir="o", conn=conn)))
     ios.append(Subsignal("ba", Pins(ba, dir="o", conn=conn)))
-    ios.append(Subsignal("dqs", DiffPairs(dqs_p, dqs_n, dir="io", conn=conn), diff_attrs))
+    ios.append(Subsignal("dqs", DiffPairs(dqs_p, dqs_n, dir="io", conn=conn), *diff_args))
     ios.append(Subsignal("dq", Pins(dq, dir="io", conn=conn)))
     ios.append(Subsignal("dm", Pins(dm, dir="o", conn=conn)))
     ios.append(Subsignal("odt", Pins(odt, dir="o", conn=conn, assert_width=ranks)))
