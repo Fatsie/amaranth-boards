@@ -2,7 +2,7 @@ from amaranth.build import *
 
 
 __all__ = [
-    "UARTResource", "IrDAResource", "SPIResource", "I2CResource",
+    "UARTResource", "IrDAResource", "SPIResource", "QSPIResource", "I2CResource",
     "DirectUSBResource", "ULPIResource", "PS2Resource",
 ]
 
@@ -89,6 +89,42 @@ def SPIResource(*args, cs_n, clk, copi, cipo, int=None, reset=None,
     if attrs is not None:
         io.append(attrs)
     return Resource.family(*args, default_name="spi", ios=io)
+
+
+def QSPIResource(*args, cs_n, clk, dq0, dq1, dq2, dq3, int=None, reset=None,
+                 conn=None, attrs=None, role="controller"):
+    assert role in ("controller", "peripheral")
+
+    io = []
+    if role == "controller":
+        if cs_n is not None:
+            io.append(Subsignal("cs", PinsN(cs_n, dir="o", conn=conn)))
+        io.append(Subsignal("clk", Pins(clk, dir="o", conn=conn, assert_width=1)))
+    else: # peripheral
+        if cs_n is not None:
+            io.append(Subsignal("cs", PinsN(cs_n, dir="i", conn=conn, assert_width=1)))
+        io.append(Subsignal("clk", Pins(clk, dir="i", conn=conn, assert_width=1)))
+    io.append(Subsignal("dq", Pins(f"{dq0} {dq1} {dq2} {dq3}", dir="io", conn=conn, assert_width=4)))
+    if int is not None:
+        if role == "controller":
+            io.append(Subsignal("int", Pins(int, dir="i", conn=conn)))
+        else:
+            io.append(Subsignal("int", Pins(int, dir="oe", conn=conn, assert_width=1)))
+    if reset is not None:
+        if role == "controller":
+            io.append(Subsignal("reset", Pins(reset, dir="o", conn=conn)))
+        else:
+            io.append(Subsignal("reset", Pins(reset, dir="i", conn=conn, assert_width=1)))
+    if attrs is not None:
+        io.append(attrs)
+
+    return (
+        SPIResource(*args,
+            cs_n=cs_n, clk=clk, copi=dq0, cipo=dq1,
+            int=int, reset=reset, conn=conn, attrs=attrs, role=role,
+        ),
+        Resource.family(*args, default_name="qspi", ios=io)
+    )
 
 
 def I2CResource(*args, scl, sda, conn=None, attrs=None):
